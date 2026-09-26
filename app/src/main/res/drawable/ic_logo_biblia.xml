@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Emblema usado dentro do app (cabeçalho da tela inicial).
+     Círculo escuro + livro dourado, garantindo contraste nos dois temas. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Medalhão de fundo -->
+    <path android:pathData="M54,0 A54,54 0 1,1 54,108 A54,54 0 1,1 54,0 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="radial"
+                android:centerX="54"
+                android:centerY="48"
+                android:gradientRadius="72"
+                android:startColor="#3A2E16"
+                android:centerColor="#1C160E"
+                android:endColor="#0B0906" />
+        </aapt:attr>
+    </path>
+
+    <!-- Aro dourado -->
+    <path
+        android:pathData="M54,3 A51,51 0 1,1 53.9,3 Z"
+        android:strokeColor="#8C6A0A"
+        android:strokeWidth="2" />
+
+    <!-- Brilhos -->
+    <path
+        android:fillColor="#FFD54F"
+        android:pathData="M77.00,23.00 L78.56,27.44 L83.00,29.00 L78.56,30.56 L77.00,35.00 L75.44,30.56 L71.00,29.00 L75.44,27.44 Z" />
+    <path
+        android:fillColor="#E5C158"
+        android:pathData="M32.00,27.00 L33.04,29.96 L36.00,31.00 L33.04,32.04 L32.00,35.00 L30.96,32.04 L28.00,31.00 L30.96,29.96 Z" />
+
+    <!-- Capa -->
+    <path
+        android:fillColor="#8C6A0A"
+        android:pathData="M54,46 L24,39 L24,68 Q40,77 54,77 Q68,77 84,68 L84,39 Z" />
+
+    <!-- Página esquerda -->
+    <path android:pathData="M54,44 L27,38 L27,67 Q41,74 54,74 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="27"
+                android:startY="38"
+                android:endX="27"
+                android:endY="74"
+                android:startColor="#F5E8C7"
+                android:endColor="#C29B38" />
+        </aapt:attr>
+    </path>
+
+    <!-- Página direita -->
+    <path android:pathData="M54,44 L81,38 L81,67 Q67,74 54,74 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="81"
+                android:startY="38"
+                android:endX="81"
+                android:endY="74"
+                android:startColor="#FFEFC9"
+                android:endColor="#D4AF37" />
+        </aapt:attr>
+    </path>
+
+    <!-- Vinco central -->
+    <path
+        android:pathData="M54,44 L54,74"
+        android:strokeColor="#7A5C10"
+        android:strokeWidth="1.2"
+        android:strokeLineCap="round" />
+</vector>

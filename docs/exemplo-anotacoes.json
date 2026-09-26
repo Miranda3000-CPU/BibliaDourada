@@ -1,0 +1,32 @@
+{
+  "format": "biblia-dourada/anotacoes",
+  "version": 1,
+  "language": "pt_BR",
+  "annotations": [
+    {
+      "book": "Lev",
+      "chapter": 1,
+      "verse": 2,
+      "text": "1.2a: Fala aos filhos de Israel. Em Levítico há dezenas de passagens que mostram o Senhor falando diretamente com Moisés."
+    },
+    {
+      "book": "Lev",
+      "chapter": 1,
+      "verse": 3,
+      "endVerse": 4,
+      "text": "Estudo do intervalo 3-4: a substituição e a imposição de mãos sobre o holocausto."
+    },
+    {
+      "book": "Gênesis",
+      "chapter": 1,
+      "verse": 1,
+      "text": "1.1: Criou o Senhor Deus os céus e a terra. Antes de criar a terra e as demais obras, o Soberano Deus estabeleceu os céus."
+    },
+    {
+      "book": 3,
+      "chapter": 1,
+      "verse": 0,
+      "text": "Estudo do capítulo inteiro: o livro de Levítico apresenta a santidade do Senhor e as leis entregues a Moisés."
+    }
+  ]
+}
