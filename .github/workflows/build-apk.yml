@@ -69,12 +69,8 @@ jobs:
           SHA256=$(sha256sum "$APK" | awk '{print toupper($1)}')
           CERT_SHA256=$("$APKSIGNER" verify --print-certs "$APK" | awk -F': ' '/Signer #1 certificate SHA-256 digest:/ {print toupper($2); exit}')
           mkdir -p app/build/release-metadata
-          printf 'SHA-256: %s
-' "$SHA256" > app/build/release-metadata/APK-SHA256.txt
-          printf 'Variante: Debug
-Assinatura: APK assinado pelo Android Gradle Plugin
-Certificado SHA-256: %s
-' "$CERT_SHA256" > app/build/release-metadata/APK-STATUS.txt
+          printf 'SHA-256: %s\n' "$SHA256" > app/build/release-metadata/APK-SHA256.txt
+          printf 'Variante: Debug\nAssinatura: APK assinado pelo Android Gradle Plugin\nCertificado SHA-256: %s\n' "$CERT_SHA256" > app/build/release-metadata/APK-STATUS.txt
           echo "sha256=$SHA256" >> "$GITHUB_OUTPUT"
           echo "APK verificado: $APK"
 
