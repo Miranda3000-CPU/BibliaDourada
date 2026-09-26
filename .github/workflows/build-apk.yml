@@ -42,11 +42,37 @@ jobs:
           echo "APK encontrado: $APK"
 
       - name: Run MobSF security analysis
-        uses: fundacaocerti/mobsf-action@v1.7.2
-        env:
-          INPUT_FILE_NAME: app/build/outputs/apk/debug/app-debug.apk
-          SCAN_TYPE: apk
-          OUTPUT_FILE_NAME: mobsf-report
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="app/build/outputs/apk/debug/app-debug.apk"
+          IMAGE="opensecurity/mobile-security-framework-mobsf:v4.4.6"
+          KEY="github-actions-biblia-dourada"
+
+          docker pull "$IMAGE"
+          docker run -d --rm --name mobsf-ci -p 8000:8000 -e MOBSF_DISABLE_AUTHENTICATION=1 -e MOBSF_API_KEY="$KEY" "$IMAGE"
+          trap 'docker stop mobsf-ci >/dev/null 2>&1 || true' EXIT
+
+          for i in {1..60}; do
+            curl -fsS http://127.0.0.1:8000/ >/dev/null && break
+            sleep 2
+          done
+
+          UPLOAD=$(curl -fsS -H "Authorization: $KEY" -F "file=@$APK" http://127.0.0.1:8000/api/v1/upload)
+          echo "$UPLOAD" > mobsf-upload-response.json
+          HASH=$(python3 -c 'import json; print(json.load(open("mobsf-upload-response.json"))["hash"])')
+
+          curl -fsS -X POST -H "Authorization: $KEY" -d "hash=$HASH" -d "scan_type=apk" -d "file_name=$(basename "$APK")" http://127.0.0.1:8000/api/v1/scan > mobsf-scan-response.json
+
+          for i in {1..60}; do
+            curl -fsS -X POST -H "Authorization: $KEY" -d "hash=$HASH" http://127.0.0.1:8000/api/v1/report_json > mobsf-report.json || true
+            python3 -c 'import json; json.load(open("mobsf-report.json"))' >/dev/null 2>&1 && break
+            sleep 5
+          done
+          python3 -c 'import json; json.load(open("mobsf-report.json"))' >/dev/null
+
+          curl -fsS -X POST -H "Authorization: $KEY" -d "hash=$HASH" http://127.0.0.1:8000/api/v1/download_pdf -o mobsf-report.pdf
+          test -s mobsf-report.pdf
 
       - name: Publish MobSF reports as artifacts
         uses: actions/upload-artifact@v4
@@ -55,33 +81,6 @@ jobs:
           path: |
             mobsf-report.pdf
             mobsf-report.json
-          retention-days: 30
-
-      - name: Verify APK signature and generate checksum
-        id: verify
-        shell: bash
-        run: |
-          set -euo pipefail
-          APK="app/build/outputs/apk/debug/app-debug.apk"
-          BUILD_TOOLS=$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n 1)
-          APKSIGNER="$BUILD_TOOLS/apksigner"
-          "$APKSIGNER" verify --verbose "$APK"
-          SHA256=$(sha256sum "$APK" | awk '{print toupper($1)}')
-          CERT_SHA256=$("$APKSIGNER" verify --print-certs "$APK" | awk -F': ' '/Signer #1 certificate SHA-256 digest:/ {print toupper($2); exit}')
-          mkdir -p app/build/release-metadata
-          printf 'SHA-256: %s\n' "$SHA256" > app/build/release-metadata/APK-SHA256.txt
-          printf 'Variante: Debug\nAssinatura: APK assinado pelo Android Gradle Plugin\nCertificado SHA-256: %s\n' "$CERT_SHA256" > app/build/release-metadata/APK-STATUS.txt
-          echo "sha256=$SHA256" >> "$GITHUB_OUTPUT"
-          echo "APK verificado: $APK"
-
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: Biblia-Dourada-APK
-          path: |
-            app/build/outputs/apk/debug/app-debug.apk
-            app/build/release-metadata/APK-SHA256.txt
-            app/build/release-metadata/APK-STATUS.txt
           retention-days: 30
 
       - name: Publish APK to Biblia-Dourada repository
