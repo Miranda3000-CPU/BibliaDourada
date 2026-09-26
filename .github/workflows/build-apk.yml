@@ -83,6 +83,34 @@ jobs:
             mobsf-report.json
           retention-days: 30
 
+      - name: Verify APK signature and generate checksum
+        id: verify
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="app/build/outputs/apk/debug/app-debug.apk"
+          BUILD_TOOLS=$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n 1)
+          APKSIGNER="$BUILD_TOOLS/apksigner"
+          "$APKSIGNER" verify --verbose "$APK"
+          SHA256=$(sha256sum "$APK" | awk '{print toupper($1)}')
+          CERT_SHA256=$("$APKSIGNER" verify --print-certs "$APK" | awk -F': ' '/Signer #1 certificate SHA-256 digest:/ {print toupper($2); exit}')
+          mkdir -p app/build/release-metadata
+          printf 'SHA-256: %s\n' "$SHA256" > app/build/release-metadata/APK-SHA256.txt
+          printf 'Variante: Debug\nAssinatura: APK assinado pelo Android Gradle Plugin\nCertificado SHA-256: %s\n' "$CERT_SHA256" > app/build/release-metadata/APK-STATUS.txt
+          test -s app/build/release-metadata/APK-SHA256.txt
+          test -s app/build/release-metadata/APK-STATUS.txt
+          echo "sha256=$SHA256" >> "$GITHUB_OUTPUT"
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Biblia-Dourada-APK
+          path: |
+            app/build/outputs/apk/debug/app-debug.apk
+            app/build/release-metadata/APK-SHA256.txt
+            app/build/release-metadata/APK-STATUS.txt
+          retention-days: 30
+
       - name: Publish APK to Biblia-Dourada repository
         env:
           GH_TOKEN: ${{ secrets.SITE_REPO_TOKEN }}
