@@ -26,14 +26,14 @@ jobs:
       - name: Make Gradle executable
         run: chmod +x ./gradlew
 
-      - name: Build release APK
-        run: ./gradlew assembleRelease --stacktrace
+      - name: Build installable APK
+        run: ./gradlew assembleDebug --stacktrace
 
       - name: Find APK
         id: apk
         shell: bash
         run: |
-          APK=$(find app/build/outputs/apk/release -type f -name '*.apk' | head -n 1)
+          APK=$(find app/build/outputs/apk/debug -type f -name '*.apk' | head -n 1)
           if [ -z "$APK" ]; then
             echo 'APK não encontrado.' >&2
             exit 1
