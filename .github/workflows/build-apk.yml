@@ -29,6 +29,22 @@ jobs:
       - name: Build installable APK
         run: ./gradlew assembleDebug --stacktrace
 
+      - name: Run MobSF security analysis
+        uses: fundacaocerti/mobsf-action@v1.7.2
+        env:
+          INPUT_FILE_NAME: ${{ steps.apk.outputs.path }}
+          SCAN_TYPE: apk
+          OUTPUT_FILE_NAME: mobsf-report
+
+      - name: Publish MobSF reports as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Biblia-Dourada-MobSF
+          path: |
+            mobsf-report.pdf
+            mobsf-report.json
+          retention-days: 30
+
       - name: Verify APK signature and generate checksum
         id: verify
         shell: bash
@@ -89,12 +105,16 @@ jobs:
           cp "$APK_PATH" site/downloads/Biblia-Dourada.apk
           cp app/build/release-metadata/APK-SHA256.txt site/downloads/APK-SHA256.txt
           cp app/build/release-metadata/APK-STATUS.txt site/downloads/APK-STATUS.txt
+          mkdir -p site/security
+          cp mobsf-report.pdf site/security/MobSF-Biblia-Dourada.pdf
+          cp mobsf-report.json site/security/MobSF-Biblia-Dourada.json
+          date -u +"%Y-%m-%dT%H:%M:%SZ" > site/security/MobSF-LAST-SCAN.txt
 
           cd site
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
 
-          git add downloads/Biblia-Dourada.apk downloads/APK-SHA256.txt downloads/APK-STATUS.txt
+          git add downloads/Biblia-Dourada.apk downloads/APK-SHA256.txt downloads/APK-STATUS.txt security/
 
           if git diff --cached --quiet; then
             echo 'Nenhuma alteração no APK.'
